@@ -13,7 +13,7 @@ const taskSchema=new mongoose.Schema({
     dueDate:{type:Date,required:true},
     assignedTo:[{type:mongoose.Schema.Types.ObjectId,ref:'User'}],
     createdBy:{type:mongoose.Schema.Types.ObjectId,ref:'User'},
-    attachments:{type:String},
+    attachments:{type:[String],default:[]},
     todoChecklist: [todoSchema],
     progress:{type:Number,default:0}
 },
