@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import toast from "react-hot-toast";
-import { LuFileSpreadsheet, LuPencil, LuTrash2 } from "react-icons/lu";
+import { LuFileSpreadsheet, LuPencil, LuTrash2, LuPaperclip } from "react-icons/lu";
 import TaskStatusTabs from "../../components/layouts/TaskStatusTabs";
 import moment from "moment";
 
@@ -163,91 +163,137 @@ const ManageTasks = () => {
           <p className="text-gray-400">Loading tasks...</p>
         </div>
       ) : allTasks.length > 0 ? (
-        <div className="overflow-x-auto p-0 rounded-lg mt-5 card">
-          <table className="min-w-full">
-            <thead>
-              <tr className="text-left bg-gray-50 border-b border-gray-200">
-                <th className="py-4 px-4 text-gray-800 font-medium text-[13px]">
-                  Title
-                </th>
-                <th className="py-4 px-4 text-gray-800 font-medium text-[13px]">
-                  Status
-                </th>
-                <th className="py-4 px-4 text-gray-800 font-medium text-[13px]">
-                  Priority
-                </th>
-                <th className="py-4 px-4 text-gray-800 font-medium text-[13px] hidden md:table-cell">
-                  Due Date
-                </th>
-                <th className="py-4 px-4 text-gray-800 font-medium text-[13px] hidden lg:table-cell">
-                  Created On
-                </th>
-                <th className="py-4 px-4 text-gray-800 font-medium text-[13px] text-center">
-                  Actions
-                </th>
-              </tr>
-            </thead>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
+          {allTasks.map((task) => (
+            <div
+              key={task._id}
+              className="card p-5 hover:shadow-lg transition-shadow border-l-4"
+              style={{
+                borderLeftColor:
+                  task.status === "Completed"
+                    ? "#22c55e"
+                    : task.status === "In-Progress"
+                    ? "#06b6d4"
+                    : "#a855f7",
+              }}
+            >
+              {/* Header with Status and Priority Badges */}
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <div className="flex gap-2 flex-wrap flex-1">
+                  <span
+                    className={`px-3 py-1 text-xs rounded font-medium ${getStatusBadgeColor(
+                      task.status
+                    )}`}
+                  >
+                    {task.status}
+                  </span>
+                  <span
+                    className={`px-3 py-1 text-xs rounded font-medium ${getPriorityBadgeColor(
+                      task.priority
+                    )}`}
+                  >
+                    {task.priority} Priority
+                  </span>
+                </div>
+              </div>
 
-            <tbody>
-              {allTasks.map((task) => (
-                <tr
-                  key={task._id}
-                  className="border-t border-gray-200 hover:bg-gray-50 transition"
-                >
-                  <td className="py-4 px-4 text-gray-700 text-[13px] line-clamp-1">
-                    {task.title}
-                  </td>
+              {/* Title */}
+              <h3 className="text-sm font-semibold text-gray-800 mb-2 line-clamp-2">
+                {task.title}
+              </h3>
 
-                  <td className="py-4 px-4">
-                    <span
-                      className={`px-3 py-1 text-xs rounded inline-block ${getStatusBadgeColor(
-                        task.status
-                      )}`}
-                    >
-                      {task.status}
-                    </span>
-                  </td>
+              {/* Description */}
+              <p className="text-xs text-gray-600 mb-3 line-clamp-2">
+                {task.description}
+              </p>
 
-                  <td className="py-4 px-4">
-                    <span
-                      className={`px-3 py-1 text-xs rounded inline-block ${getPriorityBadgeColor(
-                        task.priority
-                      )}`}
-                    >
-                      {task.priority}
-                    </span>
-                  </td>
+              {/* Progress */}
+              <div className="mb-3">
+                <div className="text-xs text-gray-700 font-medium mb-2">
+                  Task Done: {task.todoChecklist?.filter(t => t.completed).length || 0}/{task.todoChecklist?.length || 0}
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${
+                        task.todoChecklist && task.todoChecklist.length > 0
+                          ? (task.todoChecklist.filter(t => t.completed).length / task.todoChecklist.length) * 100
+                          : 0
+                      }%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
 
-                  <td className="py-4 px-4 text-gray-700 text-[13px] hidden md:table-cell">
-                    {moment(task.dueDate).format("MMM DD, YYYY")}
-                  </td>
+              {/* Dates */}
+              <div className="flex gap-4 text-xs text-gray-600 mb-3 pb-3 border-b border-gray-200">
+                <div>
+                  <div className="font-medium text-gray-700">Start Date</div>
+                  <div>{moment(task.createdAt).format("DD MMM YYYY")}</div>
+                </div>
+                <div>
+                  <div className="font-medium text-gray-700">Due Date</div>
+                  <div>{moment(task.dueDate).format("DD MMM YYYY")}</div>
+                </div>
+              </div>
 
-                  <td className="py-4 px-4 text-gray-700 text-[13px] hidden lg:table-cell">
-                    {moment(task.createdAt).format("MMM DD, YYYY")}
-                  </td>
-
-                  <td className="py-4 px-4 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => handleClick(task)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition"
-                        title="Edit"
-                      >
-                        <LuPencil className="text-base" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTask(task._id)}
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded transition"
-                        title="Delete"
-                      >
-                        <LuTrash2 className="text-base" />
-                      </button>
+              {/* Assignees and Attachments Footer */}
+              <div className="flex items-center justify-between">
+                {/* Avatars */}
+                <div className="flex items-center">
+                  {task.assignedTo && task.assignedTo.length > 0 ? (
+                    <div className="flex -space-x-2">
+                      {task.assignedTo.slice(0, 3).map((assignee, idx) => (
+                        <div
+                          key={idx}
+                          className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-semibold border-2 border-white"
+                          title={assignee.name || "User"}
+                        >
+                          {assignee?.name?.charAt(0).toUpperCase() || "U"}
+                        </div>
+                      ))}
+                      {task.assignedTo.length > 3 && (
+                        <div className="w-7 h-7 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 text-xs font-semibold border-2 border-white">
+                          +{task.assignedTo.length - 3}
+                        </div>
+                      )}
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  ) : (
+                    <span className="text-xs text-gray-400">No assignees</span>
+                  )}
+                </div>
+
+                {/* Attachments Count */}
+                <div className="flex items-center gap-3">
+                  {task.attachments && task.attachments.length > 0 && (
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <LuPaperclip className="text-sm" />
+                      <span className="text-xs font-medium">{task.attachments.length}</span>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleClick(task)}
+                      className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition"
+                      title="Edit"
+                    >
+                      <LuPencil className="text-sm" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTask(task._id)}
+                      className="p-1.5 text-red-600 hover:bg-red-50 rounded transition"
+                      title="Delete"
+                    >
+                      <LuTrash2 className="text-sm" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="card p-12 text-center mt-5">

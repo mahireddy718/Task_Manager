@@ -185,6 +185,24 @@ const ManageUsers = () => {
                   </div>
                 )}
 
+                {/* Task Statistics */}
+                <div className="pt-3 border-t border-gray-200">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="text-center">
+                      <p className="text-xs text-purple-600 font-semibold">{user.pendingTasks || 0}</p>
+                      <p className="text-xs text-gray-500">Pending</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-cyan-600 font-semibold">{user.inProgressTasks || 0}</p>
+                      <p className="text-xs text-gray-500">In Progress</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-green-600 font-semibold">{user.completedTasks || 0}</p>
+                      <p className="text-xs text-gray-500">Completed</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="pt-2 border-t border-gray-200">
                   <p className="text-xs text-gray-500">
                     Joined: {moment(user.createdAt).format("MMM DD, YYYY")}

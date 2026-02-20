@@ -207,24 +207,20 @@ const getTasks = async (req, res) => {
 
     const allTasks = await Task.countDocuments({
       ...baseFilter,
-      ...filter,
     });
 
     const pendingTasks = await Task.countDocuments({
       ...baseFilter,
-      ...filter,
       status: "Pending",
     });
 
     const inProgressTasks = await Task.countDocuments({
       ...baseFilter,
-      ...filter,
-      status: "In Progress",
+      status: "In-Progress",
     });
 
     const completedTasks = await Task.countDocuments({
       ...baseFilter,
-      ...filter,
       status: "Completed",
     });
 
