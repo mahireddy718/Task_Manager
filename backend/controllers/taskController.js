@@ -86,21 +86,21 @@ const getUserDashboardData = async (req, res) => {
     const userId = req.user._id;
 
     const totalTasks = await Task.countDocuments({
-      assignedTo: userId,
+      assignedTo: { $in: [userId] },
     });
 
     const pendingTasks = await Task.countDocuments({
-      assignedTo: userId,
+      assignedTo: { $in: [userId] },
       status: "Pending",
     });
 
     const completedTasks = await Task.countDocuments({
-      assignedTo: userId,
+      assignedTo: { $in: [userId] },
       status: "Completed",
     });
 
     const overdueTasks = await Task.countDocuments({
-      assignedTo: userId,
+      assignedTo: { $in: [userId] },
       status: { $ne: "Completed" },
       dueDate: { $lt: new Date() },
     });
@@ -108,7 +108,7 @@ const getUserDashboardData = async (req, res) => {
     const taskStatuses = ["Pending", "In-Progress", "Completed"];
 
     const taskDistributionRaw = await Task.aggregate([
-      { $match: { assignedTo: userId } },
+      { $match: { assignedTo: { $in: [userId] } } },
       {
         $group: {
           _id: "$status",
@@ -128,7 +128,7 @@ const getUserDashboardData = async (req, res) => {
     const taskPriorities = ["Low", "Medium", "High"];
 
     const taskPriorityLevelsRaw = await Task.aggregate([
-      { $match: { assignedTo: userId } },
+      { $match: { assignedTo: { $in: [userId] } } },
       {
         $group: {
           _id: "$priority",
@@ -143,7 +143,7 @@ const getUserDashboardData = async (req, res) => {
       return acc;
     }, {});
 
-    const recentTasks = await Task.find({ assignedTo: userId })
+    const recentTasks = await Task.find({ assignedTo: { $in: [userId] } })
       .sort({ createdAt: -1 })
       .limit(10)
       .select("title status priority dueDate createdAt");
@@ -194,7 +194,7 @@ const getTasks = async (req, res) => {
     else {
       tasks = await Task.find({
         ...filter,
-        assignedTo: req.user._id,
+        assignedTo: { $in: [req.user._id] },
       }).populate("assignedTo", "name email profileImageUrl");
     }
 
@@ -203,7 +203,7 @@ const getTasks = async (req, res) => {
     const baseFilter =
       req.user.role === "admin"
         ? {}
-        : { assignedTo: req.user._id };
+        : { assignedTo: { $in: [req.user._id] } };
 
     const allTasks = await Task.countDocuments({
       ...baseFilter,

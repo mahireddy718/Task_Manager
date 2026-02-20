@@ -9,7 +9,7 @@ const SideMenu = ({ activeMenu }) => {
   const navigate = useNavigate();
 
   const handleClick = (route) => {
-    if (route === "logout") {
+    if (route === "logout" || route === "/logout") {
       handleLogout();
       return;
     }
@@ -47,6 +47,12 @@ const SideMenu = ({ activeMenu }) => {
         {user?.role === "admin" && (
           <div className="text-[10px] font-medium bg-primary px-3 py-0.5 rounded mt-1">
             Admin
+          </div>
+        )}
+
+        {user?.role === "member" && (
+          <div className="text-[10px] font-medium bg-blue-100 text-blue-800 px-3 py-0.5 rounded mt-1">
+            Member
           </div>
         )}
 

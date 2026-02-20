@@ -10,7 +10,7 @@ const excelJS = require("exceljs");
 const exportTasksReport = async (req, res) => {
   try {
     // create workbook
-    const workbook = new ExcelJS.Workbook();
+    const workbook = new excelJS.Workbook();
 
     // create worksheet
     const worksheet = workbook.addWorksheet("Tasks Report");
@@ -56,12 +56,11 @@ const exportTasksReport = async (req, res) => {
 
     res.setHeader(
       "Content-Disposition",
-      'attachment; filename="tasks_report.xlsx"'
+      "attachment; filename=tasks_report.xlsx"
     );
 
     // write file
     await workbook.xlsx.write(res);
-
     res.end();
   } catch (error) {
     res.status(500).json({

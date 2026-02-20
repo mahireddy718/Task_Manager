@@ -3,7 +3,7 @@ import { BASE_URL } from "./apiPaths";
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // Increased timeout for file downloads
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -17,6 +17,11 @@ axiosInstance.interceptors.request.use(
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    // Increase timeout for file downloads
+    if (config.responseType === "blob") {
+      config.timeout = 60000;
     }
 
     return config;

@@ -37,7 +37,7 @@ const Login = () => {
         if(role?.toLowerCase()=== "admin"){
           navigate("/admin/dashboard");
         } 
-        else{
+        else if(role?.toLowerCase() === "member"){
           navigate("/user/dashboard");
         }
       } 

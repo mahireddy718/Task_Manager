@@ -1,5 +1,5 @@
 import React,{useContext} from 'react'
-import { BrowserRouter as Router, Routes, Route,Outlet,Navigate} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import Dashboard from './pages/Admin/Dashboard.jsx';
 import Login from './pages/Auth/Login.jsx';
 import SignUp from './pages/Auth/SignUp.jsx';
@@ -14,6 +14,33 @@ import PrivateRoute from './routes/PrivateRoute.jsx';
 import ViewTaskDetails from './pages/User/ViewTaskDetails.jsx'
 import UserProvider,{UserContext} from './context/userContext.jsx';
 import { Toaster } from 'react-hot-toast';
+
+// Root component to handle default route
+const Root = () => {
+  const { user, loading } = useContext(UserContext);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-700 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return user.role === "admin" ? (
+    <Navigate to="/admin/dashboard" replace />
+  ) : (
+    <Navigate to="/user/dashboard" replace />
+  );
+};
+
 const App = () => {
   return (
     <UserProvider>
@@ -31,7 +58,7 @@ const App = () => {
           </Route>
 
           {/* user routes */}
-          <Route element={<PrivateRoute allowedRoles={["user"]}/>}>
+          <Route element={<PrivateRoute allowedRoles={["member"]}/>}>
             <Route path="/user/dashboard" element={<UserDashboard/>} />
             <Route path="/user/my-tasks" element={<MyTasks/>}/>
             <Route path="/user/task-details/:id" element={<ViewTaskDetails/>} />
@@ -55,15 +82,3 @@ const App = () => {
 }
 
 export default App
-
-const Root=()=>{
-  const {user,loading}=useContext(UserContext);
-
-  if(loading){
-    return <Outlet/>
-  }
-  if(!user){
-    return <Navigate to="/login"/>
-  }
-  return user.role==="admin"? <Navigate to="/admin/dashboard"/> : <Navigate to="/user/dashboard"/>;
-}
