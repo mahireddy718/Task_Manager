@@ -169,10 +169,6 @@ const getUserDashboardData = async (req, res) => {
   }
 };
 
-module.exports = {
-  getUserDashboardData,
-};
-
 
 // @desc    Get all tasks (Admin: all, User: only assigned tasks)
 // @route   GET /api/tasks
@@ -236,9 +232,9 @@ const getTasks = async (req, res) => {
       tasks,
       statusSummary: {
         all: allTasks,
-        pending: pendingTasks,
-        inProgress: inProgressTasks,
-        completed: completedTasks,
+        pendingTasks,
+        inProgressTasks,
+        completedTasks,
       },
     });
 
