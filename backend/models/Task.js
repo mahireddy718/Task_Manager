@@ -15,8 +15,32 @@ const taskSchema=new mongoose.Schema({
     createdBy:{type:mongoose.Schema.Types.ObjectId,ref:'User'},
     attachments:{type:[String],default:[]},
     todoChecklist: [todoSchema],
-    progress:{type:Number,default:0}
+    progress:{type:Number,default:0},
+    // New fields for additional features
+    comments:[{type:mongoose.Schema.Types.ObjectId,ref:'Comment'}],
+    dependencies:[{
+        taskId:{type:mongoose.Schema.Types.ObjectId,ref:'Task'},
+        type:{type:String,enum:['blocks','blockedBy','relatedTo'],default:'relatedTo'}
+    }],
+    timeTracked:{type:Number,default:0}, // in minutes
+    reminders:[{
+        type:{type:String,enum:['email','ui'],default:'ui'},
+        reminderDate:{type:Date},
+        sent:{type:Boolean,default:false}
+    }],
+    isTemplate:{type:Boolean,default:false},
+    templateId:{type:mongoose.Schema.Types.ObjectId,ref:'TaskTemplate'},
+    viewedBy:[{type:mongoose.Schema.Types.ObjectId,ref:'User'}],
+    lastViewedAt:{type:Date}
 },
 {timestamps:true},
 );
+
+// Index for search and filters
+taskSchema.index({title:'text',description:'text'});
+taskSchema.index({dueDate:1});
+taskSchema.index({assignedTo:1});
+taskSchema.index({priority:1});
+taskSchema.index({status:1});
+
 module.exports=mongoose.model('Task',taskSchema);
