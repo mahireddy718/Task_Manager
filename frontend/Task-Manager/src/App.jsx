@@ -13,6 +13,8 @@ import PrivateRoute from './routes/PrivateRoute.jsx';
 
 import ViewTaskDetails from './pages/User/ViewTaskDetails.jsx'
 import UserProvider,{UserContext} from './context/userContext.jsx';
+import SearchProvider from './context/searchContext.jsx';
+import { ThemeProvider } from './context/themeContext.jsx';
 import { Toaster } from 'react-hot-toast';
 
 // Root component to handle default route
@@ -43,6 +45,8 @@ const Root = () => {
 
 const App = () => {
   return (
+    <ThemeProvider>
+    <SearchProvider>
     <UserProvider>
     <div>
       <Router>
@@ -78,6 +82,8 @@ const App = () => {
     }}
     />
     </UserProvider>
+    </SearchProvider>
+    </ThemeProvider>
   )
 }
 

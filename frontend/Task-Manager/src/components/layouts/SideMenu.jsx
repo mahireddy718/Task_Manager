@@ -34,7 +34,10 @@ const SideMenu = ({ activeMenu }) => {
   }, [user]);
 
   return (
-    <div className="w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200/50 sticky top-[61px] z-20">
+    <div
+      className="w-64 h-[calc(100vh-61px)] sticky top-[61px] z-20"
+      style={{ backgroundColor: 'var(--surface)', borderRight: '1px solid var(--border)' }}
+    >
       <div className="flex flex-col items-center justify-center mb-7 pt-5">
         <div className="relative">
           <img
@@ -45,35 +48,37 @@ const SideMenu = ({ activeMenu }) => {
         </div>
 
         {user?.role === "admin" && (
-          <div className="text-[10px] font-medium bg-primary px-3 py-0.5 rounded mt-1">
+          <div className="text-[10px] font-medium px-3 py-0.5 rounded mt-1" style={{ backgroundColor: 'var(--primary)', color: '#fff' }}>
             Admin
           </div>
         )}
 
         {user?.role === "member" && (
-          <div className="text-[10px] font-medium bg-blue-100 text-blue-800 px-3 py-0.5 rounded mt-1">
+          <div className="text-[10px] font-medium px-3 py-0.5 rounded mt-1" style={{ backgroundColor: 'var(--muted-surface)', color: 'var(--text)' }}>
             Member
           </div>
         )}
 
-        <h5 className="text-gray-950 font-medium leading-6 mt-3">
+        <h5 style={{ color: 'var(--text)' }} className="font-medium leading-6 mt-3">
           {user?.name || ""}
         </h5>
 
-        <p className="text-[12px] text-gray-500">
+        <p style={{ color: 'var(--muted)', fontSize: '12px' }}>
           {user?.email || ""}
         </p>
       </div>
       {sideMenuData.map((item, index) => (
         <button
           key={`menu_${index}`}
-          className={`w-full flex items-center gap-4 text-[15px] ${activeMenu === item.label
-              ? "text-primary bg-linear-to-r from-blue-50/40 to-blue-100/50 border-r-3"
-              : ""
-            } py-3 px-6 mb-3 cursor-pointer`}
           onClick={() => handleClick(item.path)}
+          className={`w-full flex items-center gap-4 text-[15px] py-3 px-6 mb-3 text-left cursor-pointer`}
+          style={{
+            color: activeMenu === item.label ? 'var(--primary)' : 'var(--text)',
+            background: activeMenu === item.label ? 'linear-gradient(to right, rgba(59,130,246,0.06), rgba(96,165,250,0.08))' : 'transparent',
+            borderRight: activeMenu === item.label ? '3px solid var(--primary)' : 'none'
+          }}
         >
-          <item.icon className="text-xl" />
+          <item.icon className="text-xl" style={{ color: 'inherit' }} />
           {item.label}
         </button>
       ))}

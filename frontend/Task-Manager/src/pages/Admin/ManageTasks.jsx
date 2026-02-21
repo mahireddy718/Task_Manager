@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
@@ -7,6 +7,10 @@ import toast from "react-hot-toast";
 import { LuFileSpreadsheet, LuPencil, LuTrash2, LuPaperclip } from "react-icons/lu";
 import TaskStatusTabs from "../../components/layouts/TaskStatusTabs";
 import moment from "moment";
+import AdvancedSearch from "../../components/Search/AdvancedSearch";
+import { SearchContext } from '../../context/searchContext';
+// BulkActions removed per UI change request
+import TaskTemplates from "../../components/Templates/TaskTemplates";
 
 const ManageTasks = () => {
   const [allTasks, setAllTasks] = useState([]);
@@ -14,6 +18,8 @@ const ManageTasks = () => {
   const [filterStatus, setFilterStatus] = useState("All");
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  // selection UI removed
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const navigate = useNavigate();
 
@@ -24,7 +30,10 @@ const ManageTasks = () => {
       const response = await axiosInstance.get(
         API_PATHS.TASKS.GET_ALL_TASKS,
         {
-          params: { status: filterStatus === "All" ? "" : filterStatus === "In Progress" ? "In-Progress" : filterStatus },
+          params: {
+            status: filterStatus === "All" ? "" : filterStatus === "In Progress" ? "In-Progress" : filterStatus,
+            ...searchParams,
+          },
         }
       );
       setAllTasks(response.data?.tasks?.length > 0 ? response.data.tasks : []);
@@ -103,9 +112,11 @@ const ManageTasks = () => {
     }
   };
 
+  const { searchParams } = useContext(SearchContext);
+
   useEffect(() => {
     getAllTasks();
-  }, [filterStatus]);
+  }, [filterStatus, searchParams]);
 
   const getStatusBadgeColor = (status) => {
     switch (status) {
@@ -133,6 +144,13 @@ const ManageTasks = () => {
     }
   };
 
+  // selection handlers removed
+
+  // Handle Search
+  const handleSearch = (params) => {
+    console.log("Search params:", params);
+  };
+
   return (
     <DashboardLayout activeMenu="Manage Tasks">
       <div className="my-5">
@@ -154,20 +172,41 @@ const ManageTasks = () => {
               <LuFileSpreadsheet className="text-lg" />
               {downloading ? "Downloading..." : "Download Report"}
             </button>
+            <button
+              className="primary-btn flex items-center gap-2"
+              onClick={() => setShowTemplates(!showTemplates)}
+            >
+              {showTemplates ? "Hide Templates" : "Show Templates"}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Task Templates Modal */}
+      {showTemplates && (
+        <div className="mb-6">
+          <TaskTemplates onTemplateUsed={() => {
+            getAllTasks();
+            setShowTemplates(false);
+          }} />
+        </div>
+      )}
+
+      {/* Advanced Search moved to header; keep component here if you want local search UI */}
 
       {loading ? (
         <div className="flex justify-center items-center py-12">
           <p className="text-gray-400">Loading tasks...</p>
         </div>
       ) : allTasks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
+        <div>
+          {/* Select all UI removed */}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5 relative">
           {allTasks.map((task) => (
             <div
               key={task._id}
-              className="card p-5 hover:shadow-lg transition-shadow border-l-4"
+              className="card p-5 hover:shadow-lg transition-shadow border-l-4 relative"
               style={{
                 borderLeftColor:
                   task.status === "Completed"
@@ -177,8 +216,10 @@ const ManageTasks = () => {
                     : "#a855f7",
               }}
             >
+              {/* Per-task selection removed */}
+
               {/* Header with Status and Priority Badges */}
-              <div className="flex items-start justify-between gap-2 mb-3">
+              <div className="flex items-start justify-between gap-2 mb-3 pr-8">
                 <div className="flex gap-2 flex-wrap flex-1">
                   <span
                     className={`px-3 py-1 text-xs rounded font-medium ${getStatusBadgeColor(
@@ -294,6 +335,8 @@ const ManageTasks = () => {
               </div>
             </div>
           ))}
+            </div>
+            {/* BulkActions removed */}
         </div>
       ) : (
         <div className="card p-12 text-center mt-5">

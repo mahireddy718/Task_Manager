@@ -7,6 +7,9 @@ import toast from "react-hot-toast";
 import moment from "moment";
 import { FiCheckCircle, FiClock, FiAlertTriangle } from "react-icons/fi";
 import { LuArrowLeft, LuFileText, LuFileCheck } from "react-icons/lu";
+import TaskComments from "../../components/Comments/TaskComments";
+import TimeTracking from "../../components/TimeTracking/TimeTracking";
+import ActivityLog from "../../components/ActivityLog/ActivityLog";
 
 const ViewTaskDetails = () => {
   const { id } = useParams();
@@ -15,6 +18,7 @@ const ViewTaskDetails = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [checklist, setChecklist] = useState([]);
+  const [activeTab, setActiveTab] = useState("details");
 
   // Fetch Task Details
   const getTaskDetails = async () => {
@@ -261,7 +265,7 @@ const ViewTaskDetails = () => {
 
               {/* Attachments */}
               {task.attachments && task.attachments.length > 0 && (
-                <div className="border-t border-gray-200 pt-6 mt-6">
+                <div className="border-t border-gray-200 pt-6 mt-6 dark:border-gray-700">
                   <div className="flex items-center gap-2 mb-4">
                     <LuFileText className="text-lg" />
                     <h3 className="text-lg font-medium">Attachments</h3>
@@ -273,7 +277,7 @@ const ViewTaskDetails = () => {
                         href={attachment}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block p-3 bg-gray-50 rounded-lg hover:bg-primary hover:text-white transition text-primary"
+                        className="block p-3 bg-gray-50 rounded-lg hover:bg-primary hover:text-white transition text-primary dark:bg-gray-800"
                       >
                         📎 Attachment {index + 1}
                       </a>
@@ -281,6 +285,56 @@ const ViewTaskDetails = () => {
                   </div>
                 </div>
               )}
+
+              {/* Tabs for Comments, Time Tracking, Activity */}
+              <div className="border-t border-gray-200 pt-6 mt-6 dark:border-gray-700">
+                <div className="flex gap-4 mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+                  <button
+                    onClick={() => setActiveTab("details")}
+                    className={`pb-3 px-4 font-medium whitespace-nowrap ${
+                      activeTab === "details"
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
+                    }`}
+                  >
+                    Details
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("comments")}
+                    className={`pb-3 px-4 font-medium whitespace-nowrap ${
+                      activeTab === "comments"
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
+                    }`}
+                  >
+                    Comments
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("timeTracking")}
+                    className={`pb-3 px-4 font-medium whitespace-nowrap ${
+                      activeTab === "timeTracking"
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
+                    }`}
+                  >
+                    Time Tracking
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("activity")}
+                    className={`pb-3 px-4 font-medium whitespace-nowrap ${
+                      activeTab === "activity"
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
+                    }`}
+                  >
+                    Activity Log
+                  </button>
+                </div>
+
+                {activeTab === "comments" && <TaskComments taskId={id} onCommentAdded={getTaskDetails} />}
+                {activeTab === "timeTracking" && <TimeTracking taskId={id} />}
+                {activeTab === "activity" && <ActivityLog taskId={id} />}
+              </div>
             </div>
           </div>
 

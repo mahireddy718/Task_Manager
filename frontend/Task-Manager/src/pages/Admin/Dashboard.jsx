@@ -13,6 +13,8 @@ import TaskListTable from "../../components/layouts/TaskListTable.jsx";
 import { LuArrowRight } from "react-icons/lu";
 import CustomPieChart from "../../components/Charts/CustomPieChart.jsx";
 import CustomBarChart from "../../components/Charts/CustomBarChart.jsx";
+import NotificationCenter from "../../components/Notifications/NotificationCenter";
+import CalendarView from "../../components/Calendar/CalendarView";
 
 const COLORS =["#8D51FF", "#00B8DB", "#7BCE00"];
 const Dashboard = () => {
@@ -74,17 +76,19 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout activeMenu="Dashboard">
-      <div className="card my-5">
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <div className="col-span-3">
-            <h2 className="text-xl md:text-2xl">
-              Good Morning! {user?.name}
-            </h2>
-            <p className="text-xs md:text-[13px] text-gray-400 mt-1.5">
-              {moment().format("dddd Do MMM YYYY")}
-            </p>
-          </div>
+          <h2 className="text-xl md:text-2xl font-medium">
+            Good Morning! {user?.name}
+          </h2>
+          <p className="text-xs md:text-[13px] text-gray-400 mt-1.5">
+            {moment().format("dddd Do MMM YYYY")}
+          </p>
         </div>
+        <NotificationCenter />
+      </div>
+
+      <div className="card my-5">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mt-5">
           <InfoCard
             label="Total Tasks"
