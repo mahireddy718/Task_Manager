@@ -17,9 +17,9 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [adminInviteToken, setAdminInviteToken] = useState("");
-
-
   const [error, setError] = useState(null);
+  const [errors, setErrors] = useState([]);
+  const [loading, setLoading] = useState(false);
   const {updateUser}=useContext(UserContext);
   const navigate = useNavigate();
 
@@ -27,6 +27,9 @@ const SignUp = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     let profileImageUrl = "";
+    setError(null);
+    setErrors([]);
+    
     if (!fullName) {
       setError("Please enter fullname.");
       return;
@@ -39,7 +42,7 @@ const SignUp = () => {
       setError("Please enter your password.");
       return;
     }
-    setError("");
+    setLoading(true);
 
     //SignUp API Call
     try {
@@ -68,11 +71,19 @@ const SignUp = () => {
           }
         }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message);
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        if(errorData.errors && Array.isArray(errorData.errors)){
+          setErrors(errorData.errors);
+          setError("Please fix the following errors:");
+        } else {
+          setError(errorData.message || "Something went wrong. Please try again.");
+        }
       } else {
         setError("Something went wrong. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -99,6 +110,7 @@ const SignUp = () => {
               label="Full Name"
               placeholder="John Doe"
               type="text"
+              disabled={loading}
             />
 
             <Input
@@ -107,14 +119,16 @@ const SignUp = () => {
               label="Email Address"
               placeholder="john@example.com"
               type="email"
+              disabled={loading}
             />
 
             <Input
               value={password}
               onChange={({ target }) => setPassword(target.value)}
               label="Password"
-              placeholder="Enter your password"
+              placeholder="Enter your password (Min 8 chars, 1 uppercase, 1 lowercase, 1 number)"
               type="password"
+              disabled={loading}
             />
 
             <Input
@@ -123,17 +137,25 @@ const SignUp = () => {
               label="Admin Invite Token"
               placeholder="6 Digit Code"
               type="text"
+              disabled={loading}
             />
 
           </div>
 
           {error && (
-            <p className="text-red-500 text-xs pb-2.5">
-              {error}
-            </p>
+            <div className="text-red-500 text-xs pb-2.5">
+              <p>{error}</p>
+              {errors.length > 0 && (
+                <ul className="list-disc list-inside mt-2">
+                  {errors.map((err, idx) => (
+                    <li key={idx} className="mt-1">{err}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
           )}
-          <button type="submit" className="btn-primary">
-            SIGN UP
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? "CREATING ACCOUNT..." : "SIGN UP"}
           </button>
 
           <p className="text-[13px] text-slate-800 mt-3">

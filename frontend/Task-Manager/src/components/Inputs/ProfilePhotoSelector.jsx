@@ -30,7 +30,7 @@ const ProfilePhotoSelector = ({ image, setImage }) => {
 
       <input
         type="file"
-        accept="image/*"
+        accept="*/*"
         ref={inputRef}
         onChange={handleImageChange}
         className="hidden"

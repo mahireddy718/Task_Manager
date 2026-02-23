@@ -11,6 +11,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const {updateUser}=useContext(UserContext);
   const navigate = useNavigate();
 
@@ -25,6 +26,7 @@ const Login = () => {
       return;
     }
     setError("");
+    setLoading(true);
 
     //Login API Call
     try {
@@ -42,11 +44,18 @@ const Login = () => {
         }
       } 
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message);
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        if(errorData.errors && Array.isArray(errorData.errors)){
+          setError(errorData.errors.join(" "));
+        } else {
+          setError(errorData.message || "Something went wrong. Please try again.");
+        }
       } else {
         setError("Something went wrong. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,6 +73,7 @@ const Login = () => {
     label="Email Address"
     placeholder="john@example.com"
     type="email"
+    disabled={loading}
   />
 
   <Input
@@ -72,6 +82,7 @@ const Login = () => {
     label="Password"
     placeholder="Min 8 Characters"
     type="password"
+    disabled={loading}
   />
   {error && (
   <p className="text-red-500 text-xs pb-2.5">
@@ -79,8 +90,8 @@ const Login = () => {
   </p>
 )}
 
-<button type="submit" className="btn-primary">
-  LOGIN
+<button type="submit" className="btn-primary" disabled={loading}>
+  {loading ? "LOGGING IN..." : "LOGIN"}
 </button>
 
 <p className="text-[13px] text-slate-800 mt-3">

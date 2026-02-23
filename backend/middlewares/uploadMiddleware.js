@@ -11,14 +11,14 @@ const storage=multer.diskStorage({
     },
 });
 
-//file filter
+//file filter - accept all image types
 const fileFilter=(req,file,cb)=>{
-    const allowedTypes=['image/jpeg','image/png','image/jpg'];
-    if(allowedTypes.includes(file.mimetype)){
+    // Accept all image file types
+    if(file.mimetype.startsWith('image/')){
         cb(null,true);
     }
     else{
-        cb(new Error('Only .jpeg, .jpg and .png formats are allowed'),false);
+        cb(new Error('Only image files are allowed'),false);
     }
 };
 
