@@ -160,9 +160,16 @@ const updateUserProfile=async(req,res)=>{
         }
         user.name=req.body.name||user.name;
         user.email=req.body.email||user.email;
-        if(req.body.profileImageUrl){
+        
+        // Handle file upload
+        if(req.file){
+            const imageUrl=`${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+            user.profileImageUrl=imageUrl;
+        }
+        else if(req.body.profileImageUrl){
             user.profileImageUrl=req.body.profileImageUrl;
         }
+        
         if(req.body.password){
             // Validate password
             const passwordErrors=validatePassword(req.body.password);
@@ -174,11 +181,13 @@ const updateUserProfile=async(req,res)=>{
         }
         const updateUser=await user.save();
         res.json({
-            _id:updateUser._id,
-            name:updateUser.name,
-            email:updateUser.email,
-            role:updateUser.role,
-            profileImageUrl:updateUser.profileImageUrl,
+            user:{
+                _id:updateUser._id,
+                name:updateUser.name,
+                email:updateUser.email,
+                role:updateUser.role,
+                profileImageUrl:updateUser.profileImageUrl,
+            },
             token:generateToken(updateUser._id),
         })
     }catch(error){

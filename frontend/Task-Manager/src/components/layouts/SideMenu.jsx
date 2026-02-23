@@ -2,10 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
 import { SIDE_MENU_DATA, SIDE_MENU_USER_DATA } from "../../utils/data";
+import { LuPencil } from "react-icons/lu";
+import EditProfileModal from "./EditProfileModal";
 
 const SideMenu = ({ activeMenu }) => {
   const { user, clearUser } = useContext(UserContext);
   const [sideMenuData, setSideMenuData] = useState([]);
+  const [showEditProfile, setShowEditProfile] = useState(false);
   const navigate = useNavigate();
 
   const handleClick = (route) => {
@@ -39,12 +42,19 @@ const SideMenu = ({ activeMenu }) => {
       style={{ backgroundColor: 'var(--surface)', borderRight: '1px solid var(--border)' }}
     >
       <div className="flex flex-col items-center justify-center mb-7 pt-5">
-        <div className="relative">
+        <div className="relative group">
           <img
             src={user?.profileImageUrl || ""}
             alt="Profile Image"
-            className="w-20 h-20 bg-slate-400 rounded-full"
+            className="w-20 h-20 bg-slate-400 rounded-full object-cover"
           />
+          {/* Edit button on hover */}
+          <button
+            onClick={() => setShowEditProfile(true)}
+            className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200"
+          >
+            <LuPencil className="text-white" size={20} />
+          </button>
         </div>
 
         {user?.role === "admin" && (
@@ -82,6 +92,16 @@ const SideMenu = ({ activeMenu }) => {
           {item.label}
         </button>
       ))}
+
+      {/* Edit Profile Modal */}
+      {showEditProfile && (
+        <EditProfileModal 
+          onClose={() => setShowEditProfile(false)}
+          onProfileUpdate={() => {
+            // Trigger refresh of parent component if needed
+          }}
+        />
+      )}
     </div>
   );
 

@@ -67,7 +67,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     getDashboardData();
-    return () => { };
+    
+    // Auto-refresh dashboard data every 15 seconds to keep it updated
+    const refreshInterval = setInterval(() => {
+      getDashboardData();
+    }, 15000);
+
+    return () => clearInterval(refreshInterval);
   }, []);
 
   const onSeeMore = () => {
@@ -107,7 +113,7 @@ const Dashboard = () => {
           <InfoCard
             label="In-Progress Tasks"
             value={addThousandsSeparator(
-              dashboardData?.charts?.taskDistribution?.InProgress || 0
+              dashboardData?.charts?.taskDistribution?.["In-Progress"] || 0
             )}
             color="bg-cyan-500"
           />

@@ -9,6 +9,7 @@ import TaskStatusTabs from "../../components/layouts/TaskStatusTabs";
 import moment from "moment";
 import AdvancedSearch from "../../components/Search/AdvancedSearch";
 import { SearchContext } from '../../context/searchContext';
+import TaskDetailModal from "../../components/layouts/TaskDetailModal";
 // BulkActions removed per UI change request
 import TaskTemplates from "../../components/Templates/TaskTemplates";
 
@@ -20,6 +21,7 @@ const ManageTasks = () => {
   const [downloading, setDownloading] = useState(false);
   // selection UI removed
   const [showTemplates, setShowTemplates] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const navigate = useNavigate();
 
@@ -206,7 +208,11 @@ const ManageTasks = () => {
           {allTasks.map((task) => (
             <div
               key={task._id}
-              className="card p-5 hover:shadow-lg transition-shadow border-l-4 relative"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedTask(task);
+              }}
+              className="card p-5 hover:shadow-lg hover:scale-105 transition-all duration-200 border-l-4 relative cursor-pointer"
               style={{
                 borderLeftColor:
                   task.status === "Completed"
@@ -344,6 +350,16 @@ const ManageTasks = () => {
             No tasks found in this status
           </p>
         </div>
+      )}
+
+
+      {/* Task Detail Modal */}
+      {selectedTask && (
+        <TaskDetailModal 
+          task={selectedTask} 
+          onClose={() => setSelectedTask(null)}
+          onTaskUpdate={getAllTasks}
+        />
       )}
     </DashboardLayout>
   );

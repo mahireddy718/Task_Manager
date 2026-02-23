@@ -11,6 +11,7 @@ import moment from "moment";
 import { SearchContext } from "../../context/searchContext";
 import { UserContext } from "../../context/userContext";
 import CalendarView from "../../components/Calendar/CalendarView";
+import TaskDetailModal from "../../components/layouts/TaskDetailModal";
 // BulkActions removed per UI change request
 
 const MyTasks = () => {
@@ -19,6 +20,7 @@ const MyTasks = () => {
   const [filterStatus, setFilterStatus] = useState("All");
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState("list");
+  const [selectedTask, setSelectedTask] = useState(null);
   const { searchParams } = useContext(SearchContext);
   const { user } = useContext(UserContext);
 
@@ -194,70 +196,116 @@ const MyTasks = () => {
         <>
           {viewMode === "list" ? (
             <div className="relative">
-              <div className="grid gap-4 my-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
                 {allTasks.map((task) => (
                   <div
                     key={task._id}
-                    className="card p-4 hover:shadow-lg transition-shadow"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedTask(task);
+                    }}
+                    className="card p-5 hover:shadow-lg hover:scale-105 transition-all duration-200 border-l-4 cursor-pointer"
+                    style={{
+                      borderLeftColor:
+                        task.status === "Completed"
+                          ? "#22c55e"
+                          : task.status === "In-Progress"
+                          ? "#06b6d4"
+                          : "#a855f7",
+                    }}
                   >
-                    <div className="flex items-start justify-between gap-4">
-
-                      <div
-                        className="flex-1 cursor-pointer"
-                        onClick={() => handleViewTask(task._id)}
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          {getStatusIcon(task.status)}
-                          <h3 className="text-base font-medium text-gray-800 dark:text-gray-200">
-                            {task.title}
-                          </h3>
-                        </div>
-
-                        <p className="text-xs text-gray-500 mb-3">
-                          {task.description?.substring(0, 100)}...
-                        </p>
-
-                        <div className="flex flex-wrap items-center gap-3">
-                          <span
-                            className={`text-xs px-3 py-1 rounded-full ${getStatusColor(
-                              task.status
-                            )}`}
-                          >
-                            {task.status}
-                          </span>
-
-                          <span
-                            className={`text-xs px-3 py-1 rounded-full font-medium ${getPriorityColor(
-                              task.priority
-                            )}`}
-                          >
-                            {task.priority} Priority
-                          </span>
-
-                          <span className="text-xs text-gray-500">
-                            Due: {moment(task.dueDate).format(
-                              "MMM DD, YYYY"
-                            )}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div
-                        className="relative"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <select
-                          value={task.status}
-                          onChange={(e) =>
-                            handleStatusChange(task._id, e.target.value)
-                          }
-                          className="text-xs px-2 py-1 border border-gray-300 rounded bg-white cursor-pointer"
+                    {/* Status and Priority Badges */}
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex gap-2 flex-wrap flex-1">
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusColor(
+                            task.status
+                          )}`}
                         >
-                          <option value="Pending">Pending</option>
-                          <option value="In-Progress">In Progress</option>
-                          <option value="Completed">Completed</option>
-                        </select>
+                          {task.status}
+                        </span>
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full font-medium ${getPriorityColor(
+                            task.priority
+                          )}`}
+                        >
+                          {task.priority} Priority
+                        </span>
                       </div>
+                    </div>
+
+                    {/* Title and Description */}
+                    <h3 className="text-base font-semibold text-gray-800 dark:text-white mb-2">
+                      {task.title}
+                    </h3>
+                    <p className="text-xs text-gray-700 dark:text-gray-300 mb-3 line-clamp-2">
+                      {task.description}
+                    </p>
+
+                    {/* Progress */}
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium text-gray-800 dark:text-gray-200">
+                          Task Done: {task.todoChecklist?.filter((t) => t.completed)?.length || 0}/{task.todoChecklist?.length || 0}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                        <div
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${
+                              task.todoChecklist?.length > 0
+                                ? Math.round(
+                                    (task.todoChecklist.filter((t) => t.completed).length /
+                                      task.todoChecklist.length) *
+                                      100
+                                  )
+                                : 0
+                            }%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Dates */}
+                    <div className="flex justify-between items-center text-xs mb-4">
+                      <div>
+                        <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium">Start Date</p>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">
+                          {moment(task.createdAt).format("D MMM YYYY")}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600 dark:text-gray-400 text-[10px] font-medium">Due Date</p>
+                        <p className="font-medium text-gray-800 dark:text-gray-200">
+                          {moment(task.dueDate).format("D MMM YYYY")}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Assigned Members */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex -space-x-2">
+                        {task.assignedTo?.slice(0, 3).map((assignee, idx) => (
+                          <div
+                            key={idx}
+                            className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-semibold border-2 border-white dark:border-gray-800 tooltip"
+                            title={assignee.name}
+                          >
+                            {assignee.name?.charAt(0).toUpperCase()}
+                          </div>
+                        ))}
+                        {task.assignedTo?.length > 3 && (
+                          <div className="w-7 h-7 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-gray-200 text-xs font-semibold border-2 border-white dark:border-gray-800">
+                            +{task.assignedTo.length - 3}
+                          </div>
+                        )}
+                      </div>
+                      {task.todoChecklist && task.todoChecklist.length > 0 && (
+                        <span className="text-xs font-medium text-gray-800 dark:text-gray-200\">
+                          📎 {task.todoChecklist.length}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -275,6 +323,15 @@ const MyTasks = () => {
             No tasks assigned yet. Check back soon!
           </p>
         </div>
+      )}
+
+      {/* Task Detail Modal */}
+      {selectedTask && (
+        <TaskDetailModal 
+          task={selectedTask} 
+          onClose={() => setSelectedTask(null)}
+          onTaskUpdate={getAllTasks}
+        />
       )}
     </DashboardLayout>
   );
