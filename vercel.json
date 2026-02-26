@@ -9,10 +9,5 @@
       }
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/Task-Manager/dist/$1"
-    }
-  ]
+  
 }
