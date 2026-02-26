@@ -14,6 +14,5 @@
       "src": "/(.*)",
       "dest": "/frontend/Task-Manager/dist/$1"
     }
-  ],
-  "ignoreCommand": "echo 'Skipping non-frontend folders'"
+  ]
 }

@@ -1,4 +1,10 @@
 {
+  "name": "task-manager-root",
+  "private": true,
+  "scripts": {
+    "build:frontend": "cd frontend/Task-Manager && npm install && npm run build",
+    "vercel:deploy": "vercel --prod"
+  },
   "dependencies": {
     "firebase": "^12.9.0"
   }
