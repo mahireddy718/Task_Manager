@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/Task-Manager/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/Task-Manager/dist/$1"
+    }
+  ],
+  "ignoreCommand": "echo 'Skipping non-frontend folders'"
+}

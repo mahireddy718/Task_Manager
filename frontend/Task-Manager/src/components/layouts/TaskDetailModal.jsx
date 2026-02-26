@@ -52,7 +52,7 @@ const TaskDetailModal = ({ task, onClose, onTaskUpdate }) => {
       
       // Send update to backend
       await axiosInstance.put(
-        `${API_PATHS.TASKS.GET_ALL_TASKS}/${task._id}`,
+        API_PATHS.TASKS.UPDATE_TODO_CHECKLIST(task._id),
         { todoChecklist: updatedTodos }
       );
       

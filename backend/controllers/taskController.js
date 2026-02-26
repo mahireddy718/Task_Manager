@@ -1,4 +1,5 @@
 const Task = require("../models/Task");
+const User = require("../models/User");
 const { logActivity } = require("./activityController");
 const { createNotification } = require("./notificationController");
 
@@ -295,6 +296,26 @@ const createTask = async (req, res) => {
             todoChecklist,
         });
 
+        // Notify assigned users about the new task
+        try {
+          if (Array.isArray(assignedTo) && assignedTo.length > 0) {
+            await Promise.all(
+              assignedTo.map((userId) =>
+                createNotification(
+                  userId,
+                  "New Task Assigned",
+                  `You have been assigned to task: ${title}`,
+                  "task",
+                  task._id,
+                  `/tasks/${task._id}`
+                )
+              )
+            );
+          }
+        } catch (err) {
+          console.error("Error creating assignment notifications:", err?.message || err);
+        }
+
         res.status(201).json({message:"Task created successfully",task});
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -328,7 +349,33 @@ const updateTask = async (req, res) => {
           .json({ message: "assignedTo must be an array of user IDs" });
       }
 
+      // Determine newly assigned users to notify
+      const prevAssigned = task.assignedTo.map((id) => id.toString());
+      const newAssigned = req.body.assignedTo.filter(
+        (id) => !prevAssigned.includes(id.toString())
+      );
+
       task.assignedTo = req.body.assignedTo;
+
+      // Send notifications to newly assigned users
+      try {
+        if (Array.isArray(newAssigned) && newAssigned.length > 0) {
+          await Promise.all(
+            newAssigned.map((userId) =>
+              createNotification(
+                userId,
+                "You were assigned a task",
+                `You have been assigned to task: ${task.title}`,
+                "task",
+                task._id,
+                `/tasks/${task._id}`
+              )
+            )
+          );
+        }
+      } catch (err) {
+        console.error("Error creating assignment notifications:", err?.message || err);
+      }
     }
 
     const updatedTask = await task.save();
@@ -427,10 +474,11 @@ const updateTaskChecklist = async (req, res) => {
     }
 
     // Allow only assigned users or admin
-    if (
-      !task.assignedTo.includes(req.user._id) &&
-      req.user.role !== "admin"
-    ) {
+    const isAssigned = task.assignedTo.some(
+      (id) => id.toString() === req.user._id.toString()
+    );
+
+    if (!isAssigned && req.user.role !== "admin") {
       return res.status(403).json({
         message: "Not authorized to update checklist",
       });
@@ -462,7 +510,31 @@ const updateTaskChecklist = async (req, res) => {
     }
 
     // Save changes
+    const prevStatus = task.status;
     await task.save();
+
+    // If task just became Completed, notify all admins
+    try {
+      if (prevStatus !== "Completed" && task.status === "Completed") {
+        const admins = await User.find({ role: "admin" }).select("_id");
+        if (admins && admins.length > 0) {
+          await Promise.all(
+            admins.map((admin) =>
+              createNotification(
+                admin._id,
+                "Task Completed",
+                `Task '${task.title}' was completed by ${req.user.name || req.user.email}`,
+                "task",
+                task._id,
+                `/tasks/${task._id}`
+              )
+            )
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Error creating completion notifications:", err?.message || err);
+    }
 
     // Return updated task
     res.status(200).json({

@@ -1,0 +1,9 @@
+node_modules/
+backend/
+uploads/
+.git/
+.github/
+.vscode/
+*.log
+dist/
+frontend/Task-Manager/node_modules/
