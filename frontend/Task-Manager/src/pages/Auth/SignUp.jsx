@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import AuthLayout from "../../components/layouts/AuthLayout";
 import ProfilePhotoSelector from '../../components/Inputs/ProfilePhotoSelector';
 import Input from '../../components/Inputs/Input';
+import SelectDropdown from '../../components/Inputs/SelectDropdown';
 import { validateEmail } from '../../utils/helper';
 import { Link } from 'react-router-dom';
 import { API_PATHS } from '../../utils/apiPaths.js';
@@ -16,7 +17,7 @@ const SignUp = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [adminInviteToken, setAdminInviteToken] = useState("");
+  const [role, setRole] = useState("");
   const [error, setError] = useState(null);
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,10 @@ const SignUp = () => {
       setError("Please enter your password.");
       return;
     }
+    if (!role) {
+      setError("Please select a role.");
+      return;
+    }
     setLoading(true);
 
     //SignUp API Call
@@ -56,17 +61,17 @@ const SignUp = () => {
         email,
         password,
         profileImageUrl,
-        adminInviteToken,
+        role,
       });
-        const {token,role}=response.data;
+        const {token,role:userRole}=response.data;
         if(token){
           localStorage.setItem("token",token);
           updateUser(response.data);
           //redirect based on role
-          if(role?.toLowerCase()=== "admin"){
+          if(userRole?.toLowerCase()=== "admin"){
             navigate("/admin/dashboard");
           } 
-          else if(role?.toLowerCase() === "member"){
+          else if(userRole?.toLowerCase() === "member"){
             navigate("/user/dashboard");
           }
         }
@@ -131,14 +136,18 @@ const SignUp = () => {
               disabled={loading}
             />
 
-            <Input
-              value={adminInviteToken}
-              onChange={({ target }) => setAdminInviteToken(target.value)}
-              label="Admin Invite Token"
-              placeholder="6 Digit Code"
-              type="text"
-              disabled={loading}
-            />
+            <div className="flex flex-col">
+              <label className="text-xs text-slate-400 mb-1">Role</label>
+              <SelectDropdown
+                options={[
+                  { value: "member", label: "Member" },
+                  { value: "admin", label: "Admin" }
+                ]}
+                value={role}
+                onChange={setRole}
+                placeholder="Select your role"
+              />
+            </div>
 
           </div>
 

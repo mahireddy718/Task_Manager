@@ -32,7 +32,7 @@ const validatePassword=(password)=>{
 
 const registerUser=async(req,res)=>{
     try{
-        const{name,email,password,profileImageUrl,adminInviteToken}=req.body;
+        const{name,email,password,profileImageUrl,role}=req.body;
         
         //Validate input
         if(!name||name.trim()===''){
@@ -43,6 +43,9 @@ const registerUser=async(req,res)=>{
         }
         if(!password||password.trim()===''){
             return res.status(400).json({message:"Password is required"});
+        }
+        if(!role|| !['admin','member'].includes(role)){
+            return res.status(400).json({message:"Valid role is required (admin or member)"});
         }
         
         // Validate password
@@ -57,12 +60,6 @@ const registerUser=async(req,res)=>{
             return res.status(400).json({message:"Email already exists in our system"});
         }
         
-        //determine user role: Admin if correct token is provided , otherwise member
-        let role="member";
-        if(adminInviteToken&& adminInviteToken==process.env.ADMIN_INVITE_TOKEN){
-            role="admin";
-        }
-
         //hash password
         const salt=await bcrypt.genSalt(10);
         const hashedPassword=await bcrypt.hash(password,salt);
